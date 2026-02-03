@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Portal Registration</title>
+</head>
+
+<body style="
+    margin:0;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color:#f4f6f9;
+">
+
+<!-- HEADER -->
+<div style="
+    background:#2f6fb2;
+    color:white;
+    padding:20px 40px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+">
+    <!-- Globe Image -->
+    <img src="{% static 'images/globe.jpg' %}"
+         alt="Globe"
+         style="height:60px;">
+
+    <h1 style="margin:0;">Teacher Portal Registration</h1>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div style="
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px 0;
+    position:relative;
+">
+
+    <!-- REGISTER CARD -->
+    <div style="
+        background:white;
+        width:420px;
+        padding:30px;
+        border-radius:8px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.1);
+        z-index:1;
+    ">
+
+        <h2 style="text-align:center; margin-bottom:10px;">
+            Create Your Account
+        </h2>
+
+        <p style="
+            text-align:center;
+            color:#777;
+            font-size:14px;
+            margin-bottom:25px;
+        ">
+            Please fill in the details below to register
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Email Address</label>
+            <input type="email" name="email" required
+                   placeholder="Enter your email"
+                   style="width:100%; padding:10px; margin:6px 0 15px; border:1px solid #ccc; border-radius:5px;">
+
+            <label>Username</label>
+            <input type="text" name="username" required
+                   placeholder="Choose a username"
+                   style="width:100%; padding:10px; margin:6px 0 15px; border:1px solid #ccc; border-radius:5px;">
+
+            <label>Password</label>
+            <input type="password" name="password" required
+                   placeholder="Create a password"
+                   style="width:100%; padding:10px; margin:6px 0 15px; border:1px solid #ccc; border-radius:5px;">
+
+            <label>Department</label>
+            <select name="department" required
+                    style="width:100%; padding:10px; margin:6px 0 15px; border:1px solid #ccc; border-radius:5px;">
+                <option value="">Select Department</option>
+                <option>Computer Science</option>
+                <option>Mathematics</option>
+                <option>Physics</option>
+                <option>Chemistry</option>
+                <option>Biology</option>
+                <option>Urdu</option>
+                <option>English</option>
+            </select>
+
+            <label>Date of Joining</label>
+            <input type="date" name="date_of_joining" required
+                   style="width:100%; padding:10px; margin:6px 0 15px; border:1px solid #ccc; border-radius:5px;">
+
+            <label>Phone Number</label>
+            <input type="text" name="phone"
+                   placeholder="Optional"
+                   style="width:100%; padding:10px; margin:6px 0 20px; border:1px solid #ccc; border-radius:5px;">
+
+            <button type="submit"
+                    style="
+                        width:100%;
+                        background:#2f6fb2;
+                        color:white;
+                        padding:12px;
+                        border:none;
+                        border-radius:6px;
+                        font-size:16px;
+                        cursor:pointer;
+                    ">
+                Register
+            </button>
+        </form>
+
+        <p style="text-align:center; margin-top:20px; font-size:14px;">
+            Already have an account?
+            <a href="#" style="color:#2f6fb2; text-decoration:none;">
+                Login here
+            </a>
+        </p>
+
+    </div>
+</div>
+
+<!-- Bottom Left Image -->
+<img src="{% static 'images/list.jpg' %}"
+     alt="List"
+     style="
+        position:fixed;
+        bottom:20px;
+        left:20px;
+        height:90px;
+     ">
+
+<!-- Bottom Right Image -->
+<img src="{% static 'images/clock.jpg' %}"
+     alt="Clock"
+     style="
+        position:fixed;
+        bottom:20px;
+        right:20px;
+        height:90px;
+     ">
+
+</body>
+</html>
