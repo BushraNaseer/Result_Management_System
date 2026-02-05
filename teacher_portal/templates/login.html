@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Teacher Portal Login</title>
     <style>
         /* Reset & font */
@@ -161,15 +161,15 @@
         <h2>Teacher Portal Login</h2>
         <form method="POST">
             {% csrf_token %}
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="password" name="password" placeholder="Password" required />
             <button type="submit">Login</button>
         </form>
         {% if messages %}
             {% for message in messages %}
-                 <div class="error-message">
-                     {{ message }}
-                 </div>
+                <div class="error-message">
+                    {{ message }}
+                </div>
             {% endfor %}
         {% endif %}
         <a href="{% url 'register' %}" class="footer-link">Don't have an account? Register</a>

@@ -1,7 +1,3 @@
-# takes a request => and gives response (a request handler)
-# the url in urls.py file in this app is linked to this views.py fuctions
-# then you have to import the urls to the urls.py file in main project 
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout
@@ -32,6 +28,7 @@ def register(request):
             password=password
         )
 
+        # Save extra info in Profile (optional)
         Profile.objects.create(
             user=user,
             department=department,
