@@ -1,96 +1,482 @@
+{% load extras %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Teacher Dashboard</title>
-    <style>
-        body {
-            margin:0;
-            font-family: 'Segoe UI', sans-serif;
-            background:#f4f6f9;
-        }
+<meta charset="UTF-8">
+<title>Result Dashboard</title>
 
-        .navbar {
-            background:#2f6fb2;
-            color:white;
-            padding:15px 30px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .navbar h2 {
-            margin:0;
-        }
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f6f9;
+}
 
-        .logout-btn {
-            background:#ff4d4d;
-            border:none;
-            padding:8px 14px;
-            color:white;
-            border-radius:6px;
-            cursor:pointer;
-        }
+.header {
+    background: #2c3e50;
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .container {
-            padding:30px;
-        }
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 25px;
+}
 
-        .cards {
-            display:grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap:20px;
-        }
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
-        .card {
-            background:white;
-            padding:20px;
-            border-radius:10px;
-            box-shadow:0 6px 20px rgba(0,0,0,0.1);
-            transition:transform 0.3s;
-        }
+.card h4 {
+    color: #7f8c8d;
+    margin-bottom: 10px;
+}
 
-        .card:hover {
-            transform:translateY(-5px);
-        }
+.card h2 {
+    color: #2c3e50;
+    font-size: 2em;
+}
 
-        .card h4 {
-            margin-bottom:10px;
-        }
+.content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    padding: 0 25px 25px;
+}
 
-        .card p {
-            color:#555;
-            font-size:14px;
-        }
-    </style>
+.table-box,
+.form-box,
+.actions {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.actions a,
+.form-box button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #2980b9;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.actions a:hover,
+.form-box button:hover {
+    background: #21618c;
+}
+
+.status-pass {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.status-fail {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+input,
+select {
+    width: 95%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #2980b9;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.subject-status {
+    display: inline-block;
+    width: 20%;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.calculation-box {
+    background: #e8f4f8;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 4px solid #2980b9;
+}
+
+.calc-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 0;
+}
+
+.subject-cell-pass {
+    background: #d4edda;
+    color: #155724;
+    font-weight: bold;
+    text-align: center;
+}
+
+.subject-cell-fail {
+    background: #f8d7da;
+    color: #721c24;
+    font-weight: bold;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+th {
+    background: #34495e;
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background: #f8f9fa;
+}
+
+a {
+    text-decoration: none;
+    color: #2980b9;
+    cursor: pointer;
+}
+
+.message {
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+@media (max-width: 768px) {
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .content {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 </head>
+
 <body>
 
-<div class="navbar">
-    <h2>Welcome, {{ request.user.username }}</h2>
-    <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button class="logout-btn" type="submit">Logout</button>
-    </form>
+<div class="header">
+    <h2>📊 Result Dashboard</h2>
+    <span>👤 {{ request.user.username }}</span>
 </div>
 
-<div class="container">
-    <h3>Dashboard</h3>
-
-    <div class="cards">
-        <div class="card">
-            <h4>Upload Results</h4>
-            <p>Add or update student results</p>
-        </div>
-        <div class="card">
-            <h4>View Results</h4>
-            <p>Check uploaded results</p>
-        </div>
-        <div class="card">
-            <h4>Profile</h4>
-            <p>View your personal info</p>
-        </div>
+<!-- Stats -->
+<div class="cards">
+    <div class="card">
+        <h4>Total Students</h4>
+        <h2>{{ total_students }}</h2>
+    </div>
+    <div class="card">
+        <h4>Results Entered</h4>
+        <h2>{{ results_entered }}</h2>
+    </div>
+    <div class="card">
+        <h4>Pass</h4>
+        <h2 style="color:#27ae60;">{{ pass_students }}</h2>
+    </div>
+    <div class="card">
+        <h4>Fail</h4>
+        <h2 style="color:#c0392b;">{{ fail_students }}</h2>
     </div>
 </div>
 
+<div class="content">
+
+<!-- FORM -->
+<div class="form-box">
+<h3>{% if edit_student %}✏️ Edit{% else %}➕ Add{% endif %} Result</h3>
+
+{% if messages %}
+<div style="margin:10px 0;">
+{% for message in messages %}
+<div class="message {{ message.tags }}">
+{{ message }}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+<form method="POST">
+{% csrf_token %}
+{% if edit_student %}
+<input type="hidden" name="student_id" value="{{ edit_student.id }}">
+{% endif %}
+
+<label>Name</label>
+<input type="text" name="name" value="{{ edit_student.name|default:'' }}" required>
+
+<label>Roll No</label>
+<input type="number" name="roll_no" value="{{ edit_student.roll_no|default:'' }}" required min="1">
+
+<label>Class</label>
+<select name="class_name" required>
+<option value="">Select Class</option>
+{% for c in classes %}
+<option value="{{ c.id }}" {% if edit_student and edit_student.classroom.id == c.id %}selected{% endif %}>
+{{ c.name }}
+</option>
+{% endfor %}
+</select>
+
+<h4 style="margin-top:20px;">Subjects & Marks</h4>
+{% for sub in subjects %}
+<div style="margin:10px 0;">
+<label>{{ sub.name }}</label>
+<input type="number" name="subject_{{ sub.id }}" class="mark-input"
+value="{{ edit_results|get_item:sub.id|default:'' }}" min="0" max="100" placeholder="Enter marks (0-100)">
+<span class="subject-status {% if edit_subject_status|get_item:sub.id %}status-{{ edit_subject_status|get_item:sub.id|lower }}{% endif %}">
+{% if edit_subject_status|get_item:sub.id %}{{ edit_subject_status|get_item:sub.id }}{% endif %}
+</span>
+</div>
+{% endfor %}
+
+<!-- LIVE CALCULATION SUMMARY -->
+<div class="calculation-box" id="box" style="display:none;">
+    <h4 style="margin-top:0;">📊 Result Summary</h4>
+    <div class="calc-row"><b>Total Marks:</b> <span id="total">0</span></div>
+    <div class="calc-row"><b>Maximum Marks:</b> <span id="max">0</span></div>
+    <div class="calc-row"><b>Percentage:</b> <span id="per">0%</span></div>
+    <div class="calc-row"><b>Status:</b> <span id="status">-</span></div>
+    <div class="calc-row"><b>Grade:</b> <span id="grade">-</span></div>
+</div>
+
+<button type="submit">{% if edit_student %}💾 Update Result{% else %}💾 Save Result{% endif %}</button>
+
+</form>
+</div>
+
+<!-- RECENT RESULTS TABLE -->
+<div class="table-box">
+<h3>📋 Recent Results (Last 5 Students)</h3>
+
+{% if recent_results %}
+<div style="overflow-x:auto;">
+<table>
+<thead>
+<tr>
+<th>Roll No</th>
+<th>Name</th>
+{% for sub in subjects %}<th>{{ sub.name }}</th>{% endfor %}
+<th>Total</th>
+<th>%</th>
+<th>Status</th>
+<th>Grade</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for student in recent_results %}
+<tr>
+<td>{{ student.roll_no }}</td>
+<td>{{ student.name }}</td>
+{% for sub in subjects %}
+<td class="{% if student.id %}
+    {% with marks=None %}
+        {% for result in student.results.all %}
+            {% if result.subject.id == sub.id %}
+                {% if result.marks >= 33 %}subject-cell-pass{% else %}subject-cell-fail{% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
+{% endif %}">
+    {% with marks=None %}
+        {% for result in student.results.all %}
+            {% if result.subject.id == sub.id %}
+                {{ result.marks }}
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
+    {% if not student.results.all %}-{% endif %}
+</td>
+{% endfor %}
+<td><b>{{ student.total_marks }}</b></td>
+<td>{{ student.percentage }}%</td>
+<td class="status-{{ student.status|lower }}">{{ student.status }}</td>
+<td><b>{{ student.grade }}</b></td>
+<td>
+<a href="?edit={{ student.id }}" title="Edit">✏️</a>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% else %}
+<p style="text-align:center;color:#7f8c8d;padding:20px;">No results entered yet. Add your first student result above!</p>
+{% endif %}
+
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+<a href="{% url 'dashboard' %}">🔄 Refresh / Clear Form</a>
+<a href="{% url 'logout' %}" style="background:#c0392b;">🚪 Logout</a>
+</div>
+
+</div>
+
+<!-- DYNAMIC JS CALCULATION -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('.mark-input');
+    const box = document.getElementById('box');
+
+    function calc() {
+        let total = 0;
+        let fail = false;
+        let enteredSubjects = 0;
+
+        inputs.forEach(i => {
+            const v = parseFloat(i.value);
+            const statusSpan = i.nextElementSibling;
+            if (i.value !== '') {
+                total += v || 0;
+                enteredSubjects++;
+                if (v < 33) { 
+                    fail = true;
+                    if (statusSpan) {
+                        statusSpan.innerText = 'FAIL';
+                        statusSpan.className = 'subject-status status-fail';
+                    }
+                } else {
+                    if (statusSpan) {
+                        statusSpan.innerText = 'PASS';
+                        statusSpan.className = 'subject-status status-pass';
+                    }
+                }
+            } else {
+                if (statusSpan) {
+                    statusSpan.innerText = '';
+                    statusSpan.className = 'subject-status';
+                }
+            }
+        });
+
+        if (enteredSubjects > 0) {
+            box.style.display = 'block';
+            const max = enteredSubjects * 100;
+            const per = (total / max) * 100;
+
+            let grade = 'F';
+            if (!fail) {
+                if (per >= 80) grade = 'A';
+                else if (per >= 60) grade = 'B';
+                else if (per >= 40) grade = 'C';
+                else if (per >= 33) grade = 'D';
+            }
+
+            const status = fail ? 'FAIL' : 'PASS';
+
+            document.getElementById('total').innerText = total;
+            document.getElementById('max').innerText = max;
+            document.getElementById('per').innerText = per.toFixed(2) + '%';
+
+            const s = document.getElementById('status');
+            s.innerText = status;
+            s.style.color = fail ? '#c0392b' : '#27ae60';
+            s.style.fontWeight = 'bold';
+
+            document.getElementById('grade').innerText = grade;
+        } else {
+            box.style.display = 'none';
+        }
+    }
+
+    inputs.forEach(i => i.addEventListener('input', calc));
+    calc(); // Initial calculation on page load
+});
+</script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
