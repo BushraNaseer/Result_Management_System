@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Result</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Use jsPDF directly instead of html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .container {
+            width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 10px;
+        }
+
+        h2 { text-align: center; }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+        }
+
+        tr:nth-child(even) { background: #f2f2f2; }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button:hover { background: #764ba2; }
+    </style>
+</head>
+
+<body>
+
+<div class="container" id="resultContent">
+    <h2>Result Card</h2>
+
+    <p><b>Name:</b> {{ student.name }}</p>
+    <p><b>Roll No:</b> {{ student.roll_no }}</p>
+
+    <table id="marksTable">
+        <tr>
+            <th>Subject</th>
+            <th>Marks</th>
+        </tr>
+        {% for r in results %}
+        <tr>
+            <td>{{ r.subject.name }}</td>
+            <td>{{ r.marks }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Total: {{ total_marks }} / {{ max_marks }}</h3>
+    <h3>Percentage: {{ percentage }}%</h3>
+
+    <canvas id="marksChart"></canvas>
+</div>
+
+<button onclick="downloadPDF()">Download PDF</button>
+
+{{ subjects|json_script:"subjects-data" }}
+{{ marks|json_script:"marks-data" }}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const subjects = JSON.parse(document.getElementById("subjects-data").textContent || "[]");
+    const marks = JSON.parse(document.getElementById("marks-data").textContent || "[]");
+
+    const canvas = document.getElementById("marksChart");
+
+    window.myChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: "Marks",
+                data: marks,
+                backgroundColor: "#667eea"
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    window.downloadPDF = function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF("p", "mm", "a4");
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        let y = 15;
+
+        // --- Title ---
+        doc.setFontSize(18);
+        doc.setTextColor(102, 126, 234);
+        doc.text("Result Card", pageWidth / 2, y, { align: "center" });
+        y += 12;
+
+        // --- Student Info ---
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text("Name: {{ student.name }}", 15, y);
+        y += 8;
+        doc.text("Roll No: {{ student.roll_no }}", 15, y);
+        y += 12;
+
+        // --- Table using autoTable ---
+        const tableRows = [];
+        {% for r in results %}
+        tableRows.push(["{{ r.subject.name }}", "{{ r.marks }}"]);
+        {% endfor %}
+
+        doc.autoTable({
+            startY: y,
+            head: [["Subject", "Marks"]],
+            body: tableRows,
+            theme: "grid",
+            headStyles: { fillColor: [102, 126, 234], textColor: 255 },
+            alternateRowStyles: { fillColor: [242, 242, 242] },
+            styles: { halign: "center" },
+        });
+
+        y = doc.lastAutoTable.finalY + 10;
+
+        // --- Total & Percentage ---
+        doc.setFontSize(13);
+        doc.text("Total: {{ total_marks }} / {{ max_marks }}", 15, y);
+        y += 8;
+        doc.text("Percentage: {{ percentage }}%", 15, y);
+        y += 12;
+
+        // --- Chart as Image (THIS IS THE KEY FIX) ---
+        const chartCanvas = document.getElementById("marksChart");
+        const chartImg = chartCanvas.toDataURL("image/png", 1.0);
+        const imgWidth = pageWidth - 30;
+        const imgHeight = (chartCanvas.height / chartCanvas.width) * imgWidth;
+
+        // Add new page if chart won't fit
+        if (y + imgHeight > doc.internal.pageSize.getHeight() - 15) {
+            doc.addPage();
+            y = 15;
+        }
+
+        doc.addImage(chartImg, "PNG", 15, y, imgWidth, imgHeight);
+
+        // --- Save ---
+        doc.save("student-result.pdf");
+    };
+
+});
+</script>
+
+</body>
+</html>
+
+

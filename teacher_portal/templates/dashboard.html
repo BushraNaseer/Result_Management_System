@@ -379,8 +379,8 @@ value="{{ edit_results|get_item:sub.id|default:'' }}" min="0" max="100" placehol
 
 <!-- ACTIONS -->
 <div class="actions">
-<a href="{% url 'dashboard' %}">🔄 Refresh / Clear Form</a>
-<a href="{% url 'logout' %}" style="background:#c0392b;">🚪 Logout</a>
+<a href="{% url 'teacher_portal:dashboard' %}">🔄 Refresh / Clear Form</a>
+<a href="{% url 'teacher_portal:logout' %}" style="background:#c0392b;">🚪 Logout</a>
 </div>
 
 </div>
@@ -459,24 +459,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
