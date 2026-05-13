@@ -254,65 +254,87 @@ a {
 
 <!-- FORM -->
 <div class="form-box">
+
 <h3>{% if edit_student %}✏️ Edit{% else %}➕ Add{% endif %} Result</h3>
 
 {% if messages %}
 <div style="margin:10px 0;">
-{% for message in messages %}
-<div class="message {{ message.tags }}">
-{{ message }}
-</div>
-{% endfor %}
+  {% for message in messages %}
+    <div class="message {{ message.tags }}">
+      {{ message }}
+    </div>
+  {% endfor %}
 </div>
 {% endif %}
 
+<!-- 🔵 CLASS SELECT (GET FORM FIRST) -->
+<form method="get">
+  <label>Class</label>
+  <select name="class_id" required onchange="this.form.submit()">
+    <option value="">Select Class</option>
+    {% for c in classes %}
+      <option value="{{ c.id }}"
+        {% if request.GET.class_id == c.id|stringformat:"s" %}selected{% endif %}>
+        {{ c.name }}
+      </option>
+    {% endfor %}
+  </select>
+</form>
+
+<!-- 🔴 MAIN FORM (POST FORM) -->
 <form method="POST">
-{% csrf_token %}
-{% if edit_student %}
-<input type="hidden" name="student_id" value="{{ edit_student.id }}">
-{% endif %}
+  {% csrf_token %}
 
-<label>Name</label>
-<input type="text" name="name" value="{{ edit_student.name|default:'' }}" required>
+  {% if edit_student %}
+    <input type="hidden" name="student_id" value="{{ edit_student.id }}">
+  {% endif %}
 
-<label>Roll No</label>
-<input type="number" name="roll_no" value="{{ edit_student.roll_no|default:'' }}" required min="1">
+  <label>Name</label>
+  <input type="text" name="name" value="{{ edit_student.name|default:'' }}" required>
 
-<label>Class</label>
-<select name="class_name" required>
-<option value="">Select Class</option>
-{% for c in classes %}
-<option value="{{ c.id }}" {% if edit_student and edit_student.classroom.id == c.id %}selected{% endif %}>
-{{ c.name }}
-</option>
-{% endfor %}
-</select>
+  <label>Roll No</label>
+  <input type="number" name="roll_no" value="{{ edit_student.roll_no|default:'' }}" required>
 
-<h4 style="margin-top:20px;">Subjects & Marks</h4>
-{% for sub in subjects %}
-<div style="margin:10px 0;">
-<label>{{ sub.name }}</label>
-<input type="number" name="subject_{{ sub.id }}" class="mark-input"
-value="{{ edit_results|get_item:sub.id|default:'' }}" min="0" max="100" placeholder="Enter marks (0-100)">
-<span class="subject-status {% if edit_subject_status|get_item:sub.id %}status-{{ edit_subject_status|get_item:sub.id|lower }}{% endif %}">
-{% if edit_subject_status|get_item:sub.id %}{{ edit_subject_status|get_item:sub.id }}{% endif %}
-</span>
-</div>
-{% endfor %}
+  <label>Email (for notifications)</label>
+  <input type="email" name="email" value="{{ edit_student.email|default:'' }}" placeholder="student@email.com">
 
-<!-- LIVE CALCULATION SUMMARY -->
-<div class="calculation-box" id="box" style="display:none;">
+  <input type="hidden" name="class_id" value="{{ request.GET.class_id }}">
+  
+  <h4 style="margin-top:20px;">Subjects & Marks</h4>
+
+  {% for sub in subjects %}
+    <div style="margin:10px 0;">
+      <label>{{ sub.name }}</label>
+      <input type="number"
+             name="subject_{{ sub.id }}"
+             class="mark-input"
+             value="{{ edit_results|get_item:sub.id|default:'' }}"
+             min="0" max="100"
+             placeholder="Enter marks (0-100)">
+      <span class="subject-status {% if edit_subject_status|get_item:sub.id %}status-{{ edit_subject_status|get_item:sub.id|lower }}{% endif %}">
+        {% if edit_subject_status|get_item:sub.id %}
+          {{ edit_subject_status|get_item:sub.id }}
+        {% endif %}
+      </span>
+    </div>
+  {% endfor %}
+
+  <!-- LIVE CALCULATION -->
+  <div class="calculation-box" id="box" style="display:none;">
     <h4 style="margin-top:0;">📊 Result Summary</h4>
     <div class="calc-row"><b>Total Marks:</b> <span id="total">0</span></div>
     <div class="calc-row"><b>Maximum Marks:</b> <span id="max">0</span></div>
     <div class="calc-row"><b>Percentage:</b> <span id="per">0%</span></div>
     <div class="calc-row"><b>Status:</b> <span id="status">-</span></div>
     <div class="calc-row"><b>Grade:</b> <span id="grade">-</span></div>
-</div>
+  </div>
 
-<button type="submit">{% if edit_student %}💾 Update Result{% else %}💾 Save Result{% endif %}</button>
+  <button type="submit">
+    {% if edit_student %}💾 Update Result{% else %}💾 Save Result{% endif %}
+  </button>
 
 </form>
+
 </div>
 
 <!-- RECENT RESULTS TABLE -->
@@ -364,7 +386,7 @@ value="{{ edit_results|get_item:sub.id|default:'' }}" min="0" max="100" placehol
 <td class="status-{{ student.status|lower }}">{{ student.status }}</td>
 <td><b>{{ student.grade }}</b></td>
 <td>
-<a href="?edit={{ student.id }}" title="Edit">✏️</a>
+<a href="?edit={{ student.id }}&class_id={{ student.classroom.id }}" title="Edit">✏️</a>
 </td>
 </tr>
 {% endfor %}
@@ -374,7 +396,6 @@ value="{{ edit_results|get_item:sub.id|default:'' }}" min="0" max="100" placehol
 {% else %}
 <p style="text-align:center;color:#7f8c8d;padding:20px;">No results entered yet. Add your first student result above!</p>
 {% endif %}
-
 </div>
 
 <!-- ACTIONS -->
@@ -382,6 +403,39 @@ value="{{ edit_results|get_item:sub.id|default:'' }}" min="0" max="100" placehol
 <a href="{% url 'teacher_portal:dashboard' %}">🔄 Refresh / Clear Form</a>
 <a href="{% url 'teacher_portal:logout' %}" style="background:#c0392b;">🚪 Logout</a>
 </div>
+
+<!-- EXPORT BOX -->
+<div class="actions">
+<h3 style="margin-bottom:10px; color:#2c3e50;">📥 Export Results by Class</h3>
+<form method="GET" action="{% url 'teacher_portal:export_class_results' %}">
+    <select name="class_id" required style="width:100%;padding:8px;margin-bottom:10px;border:1px solid #ddd;border-radius:5px;">
+        <option value="">-- Select Class --</option>
+        {% for c in classes %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" style="background:#27ae60;">📊 Download Excel</button>
+</form>
+</div>
+
+<!-- ✅ NOTIFY STUDENTS (Admin Only) -->
+{% if request.user.is_superuser %}
+<div class="actions" style="border-left:4px solid #8e44ad;">
+<h3 style="margin-bottom:10px; color:#2c3e50;">📧 Notify Students by Email</h3>
+<p style="font-size:13px;color:#7f8c8d;margin-bottom:10px;">Sends result notification email to all students of selected class.</p>
+<form method="POST" action="{% url 'teacher_portal:notify_students' %}">
+    {% csrf_token %}
+    <select name="class_id" required style="width:100%;padding:8px;margin-bottom:10px;border:1px solid #ddd;border-radius:5px;">
+        <option value="">-- Select Class --</option>
+        {% for c in classes %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" style="background:#8e44ad;">📨 Send Notifications</button>
+</form>
+</div>
+{% endif %}
+<!-- ✅ END NOTIFY -->
 
 </div>
 
@@ -453,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     inputs.forEach(i => i.addEventListener('input', calc));
-    calc(); // Initial calculation on page load
+    calc();
 });
 </script>
 
